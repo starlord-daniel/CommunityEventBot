@@ -50,7 +50,7 @@ namespace EventBot.Dialogs
         {
             List<EventSpeaker> allEventInfos = SqlConnector.GetEventSpeakerInfo();
 
-            var entity = (from l in luisResult.entities where l.type == "speaker" select l).FirstOrDefault();
+            var entity = (from l in luisResult.entities where l.type == "speakerName" select l).FirstOrDefault();
 
             switch (luisResult.topScoringIntent.intent)
             {
@@ -58,7 +58,7 @@ namespace EventBot.Dialogs
                     {
                         if (entity != null)
                         {
-                            var speakerInfo = allEventInfos.Where(x => x.SpeakerName == entity.entity).FirstOrDefault();
+                            var speakerInfo = allEventInfos.Where(x => x.SpeakerName.ToLower().Contains(entity.entity)).FirstOrDefault();
 
                             // Format the speakers info for output
                             await BuildSpeakerResult(context, speakerInfo);
@@ -73,7 +73,7 @@ namespace EventBot.Dialogs
                     {
                         if (entity != null)
                         {
-                            var speakerInfo = allEventInfos.Where(x => x.SpeakerName == entity.entity).FirstOrDefault();
+                            var speakerInfo = allEventInfos.Where(x => x.SpeakerName.ToLower().Contains(entity.entity)).FirstOrDefault();
 
                             // Filter for Speaker Content
                             var resultText = $"{entity.entity} talks about the following topic: {speakerInfo.TalkDescription}";
@@ -136,6 +136,12 @@ namespace EventBot.Dialogs
 
         private async Task BuildSpeakerResult(IDialogContext context, EventSpeaker speakerInfo)
         {
+            if (speakerInfo == null)
+            {
+                await AskAgain(context);
+                return;
+            }
+
             var message = context.MakeMessage();
             message.Recipient = context.MakeMessage().From;
             message.Type = "message";
