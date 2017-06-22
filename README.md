@@ -87,3 +87,15 @@ To train and publish you LUIS model, follow the steps as described:
 ## Integrating the database ##
 
 ## Adding speech capabilities ##
+
+![Cortana Image](http://www.technodoze.com/wp-content/uploads/2015/11/microsoft-cortana.jpg)
+
+For Cortana integration, take a look at the following links: 
+
+1. [Test Cortana Skills](https://docs.microsoft.com/en-us/bot-framework/debug-bots-cortana-skill-invoke#test-your-cortana-skill)
+
+2. [Cortana Developer Center](https://developer.microsoft.com/en-us/cortana)
+
+3. [Connect a bot to Cortana](https://docs.microsoft.com/en-us/bot-framework/channel-connect-cortana)
+
+4. [Teach your bot to speak](https://docs.microsoft.com/en-us/cortana/tutorials/bot-skills/teach-your-bot-to-speak)
