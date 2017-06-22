@@ -84,7 +84,125 @@ To train and publish you LUIS model, follow the steps as described:
 
 ## Integrating LUIS ##
 
+For LUIS integration, you have 2 options: Either you use the built-in dialogs, as described in [Enable LUIS](https://docs.microsoft.com/en-us/bot-framework/dotnet/bot-builder-dotnet-luis-dialogs). The second option is to include the REST call manually. This offers more flexibility over the LUIS results and is used in this implementation. The implemented LuisConnector takes just a few lines of code:
+
+```csharp
+[Serializable]
+public class LuisConnector
+{
+    public static async Task<LuisResult> GetLuisResult(string query)
+    {
+        LuisResult luisResponse;
+        
+        string luisUrl = $"https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{Credentials.LUIS_MODEL_ID}?subscription-key={Credentials.LUIS_SUBSCRIPTION_KEY}&verbose=true&q={HttpUtility.HtmlEncode(query)}";
+
+        HttpClient client = new HttpClient();
+        var response = await client.GetStringAsync(luisUrl);
+
+        luisResponse = JsonConvert.DeserializeObject<LuisResult>(response);
+
+        return luisResponse;
+    }
+}
+```
+
+The LuisResult mentioned above, looks like this:
+
+```csharp
+[Serializable]
+public class LuisResult
+{
+    public string query { get; set; }
+    public Topscoringintent topScoringIntent { get; set; }
+    public Intent[] intents { get; set; }
+    public Entity[] entities { get; set; }
+}
+
+[Serializable]
+public class Topscoringintent
+{
+    public string intent { get; set; }
+    public float score { get; set; }
+}
+
+[Serializable]
+public class Intent
+{
+    public string intent { get; set; }
+    public float score { get; set; }
+}
+
+[Serializable]
+public class Entity
+{
+    public string entity { get; set; }
+    public string type { get; set; }
+    public int startIndex { get; set; }
+    public int endIndex { get; set; }
+    public float score { get; set; }
+}
+```
+
 ## Integrating the database ##
+
+For database integration, the namespace **System.Data.SqlClient** is used, which provides the SQLConnection object to automate connection to the database and SqlCommand to send queries to the database.
+
+The resulting SQLConnector which is used in the implementation, looks like this: 
+
+```csharp
+[Serializable]
+public static class SqlConnector
+{
+    /// <summary>
+    /// Call the database to get all dishes 
+    /// </summary>
+    /// <param name="project">All available dishes.</param>
+    internal static List<EventSpeaker> GetEventSpeakerInfo()
+    {
+        List<EventSpeaker> speakerInfo = new List<EventSpeaker>();
+        using (SqlConnection connection = new SqlConnection(Credentials.SQL_CONNECTION_STRING))
+        {
+            var query = String.Format("SELECT * FROM eventinfoextended;");
+
+            SqlCommand command = new SqlCommand(query, connection);
+            connection.Open();
+
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var id = Convert.ToDecimal(reader["ID"]);
+                    var speakerName = reader["SPEAKERNAME"].ToString();
+                    var speakerDescription = reader["SPEAKERDESCRIPTION"].ToString();
+                    var speakerImage = reader["SPEAKERIMAGE"].ToString();
+                    var talkTitle = reader["TALKTITLE"].ToString();
+                    var talkDescription = reader["TALKDESCRIPTION"].ToString();
+                    var talkTime = Convert.ToDateTime(reader["TALKTIME"]);
+                    var talkTrack = reader["TALKTRACK"].ToString();
+
+
+                    speakerInfo.Add(new EventSpeaker
+                    {
+                        Id = (int)id,
+                        SpeakerDescription = speakerDescription,
+                        SpeakerImageUrl = speakerImage,
+                        SpeakerName = speakerName,
+                        TalkDescription = talkDescription,
+                        TalkTime = talkTime,
+                        TalkTitle = talkTitle,
+                        TalkTrack = talkTrack
+                    });
+                }
+
+            }
+            connection.Close();
+        }
+
+        return speakerInfo;
+    }
+
+}
+```
 
 ## Adding speech capabilities ##
 
