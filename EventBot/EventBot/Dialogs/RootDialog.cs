@@ -17,7 +17,11 @@ namespace EventBot.Dialogs
 
         public Task StartAsync(IDialogContext context)
         {
-            context.Wait(MessageReceivedAsync);
+            // Optional greeting
+            // context.Wait(MessageReceivedAsync);
+
+            // Lead direclty to LUIS
+            context.Wait(WaitForLuisMessage);
 
             return Task.CompletedTask;
         }
@@ -56,18 +60,12 @@ namespace EventBot.Dialogs
                         {
                             var speakerInfo = allEventInfos.Where(x => x.SpeakerName == entity.entity).FirstOrDefault();
 
-                            // Filter for Session time
-                            var resultText = $"The next session from {entity.entity} is at {speakerInfo.TalkTime.Hour}:{speakerInfo.TalkTime.Minute}.";
-
-                            await context.PostAsync(resultText);
-                            await context.PostAsync(RETURN_GREETING);
-                            context.Wait(WaitForLuisMessage);
+                            // Format the speakers info for output
+                            await BuildSpeakerResult(context, speakerInfo);
                         }
                         else
                         {
-                            // Ask again
-                            await context.PostAsync("I couldn't find the speaker you are looking for. Please include the speaker in your request and try again.");
-                            context.Wait(WaitForLuisMessage);
+                            await AskAgain(context);
                         }
                     }
                     break;
@@ -86,9 +84,7 @@ namespace EventBot.Dialogs
                         }
                         else
                         {
-                            // Ask again
-                            await context.PostAsync("I couldn't find the speaker you are looking for. Please include the speaker in your request and try again.");
-                            context.Wait(WaitForLuisMessage);
+                            await AskAgain(context);
                         }
                     }
                     break;
@@ -102,8 +98,13 @@ namespace EventBot.Dialogs
 
                         if (allLaterSpeakers.Count == 0)
                         {
-                            await context.PostAsync("There are no sessions left. Happy hacking :-)");
-                            await this.StartAsync(context);
+                            IMessageActivity message = context.MakeMessage();
+
+                            message.Speak = "There are no sessions left. Happy coding!";
+                            message.InputHint = InputHints.AcceptingInput;
+
+                            await context.PostAsync("There are no sessions left. Happy coding :-)");
+                            context.Wait(WaitForLuisMessage);
                         }
                         else
                         {
@@ -116,11 +117,48 @@ namespace EventBot.Dialogs
                     break;
                 default:
                     {
-                        await context.PostAsync("I couldn't find the speaker you are looking for. Please include the speaker in your request and try again.");
-                        context.Wait(WaitForLuisMessage);
+                        await AskAgain(context);
                     }
                     break;
             }
+        }
+
+        private async Task AskAgain(IDialogContext context)
+        {
+            var message = context.MakeMessage();
+            message.Speak = "I couldn't find the speaker you are looking for. Please include the speaker in your request and try again.";
+            message.Text = "I couldn't find the speaker you are looking for. Please include the speaker in your request and try again.";
+            message.InputHint = InputHints.AcceptingInput;
+
+            await context.PostAsync(message);
+            context.Wait(WaitForLuisMessage);
+        }
+
+        private async Task BuildSpeakerResult(IDialogContext context, EventSpeaker speakerInfo)
+        {
+            var message = context.MakeMessage();
+            message.Recipient = context.MakeMessage().From;
+            message.Type = "message";
+            message.Attachments = new List<Attachment>();
+            message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+            HeroCard resultCard = new HeroCard()
+            {
+                Images = new List<CardImage> { new CardImage(speakerInfo.SpeakerImageUrl) },
+                Title = speakerInfo.SpeakerName,
+                Text = speakerInfo.TalkDescription,
+                Subtitle = String.Format("{0:t}", speakerInfo.TalkTime)
+            };
+
+            Attachment cardAttachment = resultCard.ToAttachment();
+            message.Attachments.Add(cardAttachment);
+
+            var spoken = $"The talk from {speakerInfo.SpeakerName} is at {String.Format("{0:t}", speakerInfo.TalkTime)} about {speakerInfo.TalkTitle}";
+            message.Speak = spoken;
+
+            await context.PostAsync(message);
+            //await context.PostAsync(RETURN_GREETING);
+            context.Wait(WaitForLuisMessage);
         }
 
         private async Task DisplaySpeakerInformation(IDialogContext context, List<EventSpeaker> allLaterSpeakers)
@@ -138,16 +176,21 @@ namespace EventBot.Dialogs
                 {
                     Images = new List<CardImage> { new CardImage(speaker.SpeakerImageUrl) },
                     Title = speaker.SpeakerName,
-                    Text = speaker.TalkDescription.Substring(0, 150),
+                    Text = speaker.TalkDescription.Length < 150 ? speaker.TalkDescription : speaker.TalkDescription.Substring(0, 150) + "...",
                     Subtitle = String.Format("{0:t}", speaker.TalkTime)
-            };
+                };
 
                 Attachment cardAttachment = resultCard.ToAttachment();
                 finalMessage.Attachments.Add(cardAttachment);
             }
 
+            // Build up spoken response
+            var spoken = $"I received {allLaterSpeakers.Count} results.";
+            finalMessage.Speak = spoken;
+            finalMessage.InputHint = InputHints.AcceptingInput;
+
             await context.PostAsync(finalMessage);
-            await context.PostAsync(RETURN_GREETING);
+            //await context.PostAsync(RETURN_GREETING);
             context.Wait(WaitForLuisMessage);
 
         }
