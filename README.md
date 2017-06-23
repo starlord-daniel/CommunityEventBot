@@ -1,8 +1,6 @@
 # CommunityEventBot
 A Bot to get information on your community event. The bot is written in C#.
 
-<a href="https://channel9.msdn.com/Shows/Misc-Videos/Cortana-Skill-Demo-Event-Bot" ><img src="images/Cortana_Demo.gif" /></a>
-
 ## Initial Bot Setup ###
 
 To get started with bot, you first have to install the Bot Builder SDK, which is available via Nuget. A [template of a sample bot](http://aka.ms/bf-bc-vstemplate) to start with is also available on the [Bot Framework documentation website](https://docs.microsoft.com/en-us/bot-framework/).
@@ -208,7 +206,9 @@ public static class SqlConnector
 
 ## Adding speech capabilities ##
 
-![Cortana Image](http://www.technodoze.com/wp-content/uploads/2015/11/microsoft-cortana.jpg)
+Click on the image to get a demo of the interaction with Cortana.
+
+<a href="https://channel9.msdn.com/Shows/Misc-Videos/Cortana-Skill-Demo-Event-Bot" ><img src="http://www.technodoze.com/wp-content/uploads/2015/11/microsoft-cortana.jpg" /></a>
 
 For Cortana integration, take a look at the following links: 
 
