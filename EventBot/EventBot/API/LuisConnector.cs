@@ -17,7 +17,7 @@ namespace EventBot.API
         {
             LuisResult luisResponse;
             
-            string luisUrl = $"https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{Credentials.LUIS_MODEL_ID}?subscription-key={Credentials.LUIS_SUBSCRIPTION_KEY}&verbose=true&q={HttpUtility.HtmlEncode(query)}";
+            string luisUrl = $"https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{Credentials.LUIS_MODEL_ID}?subscription-key={Credentials.LUIS_SUBSCRIPTION_KEY}&verbose=true&q={query}";
 
             HttpClient client = new HttpClient();
             var response = await client.GetStringAsync(luisUrl);
