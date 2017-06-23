@@ -85,7 +85,7 @@ namespace EventBot.Dialogs
                         var currentTime = DateTime.Now;
 
                         // Filter for time
-                        var allLaterSpeakers = allEventInfos.Where(x => x.TalkTime.CompareTo(currentTime) > 0).OrderBy(x => x.TalkTime).ToList();
+                        var allLaterSpeakers = allEventInfos.Where(x => x.TalkTime.CompareTo(currentTime.ToUniversalTime().AddHours(2)) > 0).OrderBy(x => x.TalkTime).ToList();
 
                         if (allLaterSpeakers.Count == 0)
                         {
