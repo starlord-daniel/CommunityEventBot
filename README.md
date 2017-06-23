@@ -1,7 +1,7 @@
 # CommunityEventBot
 A Bot to get information on your community event. The bot is written in C#.
 
-[![Cortana Demo](images/Cortana_Demo.gif)](https://channel9.msdn.com/Shows/Misc-Videos/Cortana-Skill-Demo-Event-Bot)
+<a href="https://channel9.msdn.com/Shows/Misc-Videos/Cortana-Skill-Demo-Event-Bot" ><img src="images/Cortana_Demo.gif" /></a>
 
 ## Initial Bot Setup ###
 
