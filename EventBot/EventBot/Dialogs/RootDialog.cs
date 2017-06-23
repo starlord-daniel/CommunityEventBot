@@ -26,15 +26,6 @@ namespace EventBot.Dialogs
             return Task.CompletedTask;
         }
 
-        private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
-        {
-            var greeting = "Hi, I'm Eve, your event bot. You can ask me questions about your event. Please state a question.";
-
-            await context.PostAsync(greeting);
-
-            context.Wait(WaitForLuisMessage);
-        }
-
         private async Task WaitForLuisMessage(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
@@ -191,7 +182,8 @@ namespace EventBot.Dialogs
             }
 
             // Build up spoken response
-            var spoken = $"I received {allLaterSpeakers.Count} results.";
+            var spoken = $"I received {allLaterSpeakers.Count} results. ";
+            spoken += $"The next speaker is {allLaterSpeakers.FirstOrDefault().SpeakerName} with {allLaterSpeakers.FirstOrDefault().TalkTitle}";
             finalMessage.Speak = spoken;
             finalMessage.InputHint = InputHints.AcceptingInput;
 
@@ -201,5 +193,13 @@ namespace EventBot.Dialogs
 
         }
 
+        private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
+        {
+            var greeting = "Hi, I'm Eve, your event bot. You can ask me questions about your event. Please state a question.";
+
+            await context.PostAsync(greeting);
+
+            context.Wait(WaitForLuisMessage);
+        }
     }
 }
