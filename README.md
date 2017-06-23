@@ -1,6 +1,8 @@
 # CommunityEventBot
 A Bot to get information on your community event. The bot is written in C#.
 
+[![Cortana Demo](images/Cortana_Demo.gif)](https://channel9.msdn.com/Shows/Misc-Videos/Cortana-Skill-Demo-Event-Bot)
+
 ## Initial Bot Setup ###
 
 To get started with bot, you first have to install the Bot Builder SDK, which is available via Nuget. A [template of a sample bot](http://aka.ms/bf-bc-vstemplate) to start with is also available on the [Bot Framework documentation website](https://docs.microsoft.com/en-us/bot-framework/).
