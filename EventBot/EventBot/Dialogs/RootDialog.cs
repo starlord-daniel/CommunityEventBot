@@ -92,9 +92,10 @@ namespace EventBot.Dialogs
                             IMessageActivity message = context.MakeMessage();
 
                             message.Speak = "There are no sessions left. Happy coding!";
+                            message.Text = "There are no sessions left. Happy coding!";
                             message.InputHint = InputHints.AcceptingInput;
 
-                            await context.PostAsync("There are no sessions left. Happy coding :-)");
+                            await context.PostAsync(message);
                             context.Wait(WaitForLuisMessage);
                         }
                         else
